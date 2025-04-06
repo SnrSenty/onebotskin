@@ -3,7 +3,6 @@ import uuid
 import json
 import zipfile
 import logging
-import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -173,7 +172,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 # Основная функция
-async def main():
+def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Удаление существующего вебхука
@@ -182,7 +181,7 @@ async def main():
         logger.info("Старый вебхук успешно удалён.")
 
     # Выполнение асинхронного кода перед запуском бота
-    await delete_webhook()
+    app.run_async(delete_webhook())
 
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
@@ -191,7 +190,7 @@ async def main():
 
     # Запуск бота
     logger.info("Бот успешно запущен.")
-    await app.run_polling()
+    app.run_polling()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
