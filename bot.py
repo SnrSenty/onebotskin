@@ -54,8 +54,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Обработка сообщений с изображениями
 async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    logger.info(f"Пользователь {user_id} отправил изображение.")
-
     if not await check_subscription(user_id, context):
         # Если пользователь не подписан, напоминаем подписаться
         await update.message.reply_text("Вы не подписаны на канал. Подпишитесь, чтобы продолжить.")
