@@ -14,20 +14,30 @@ from telegram.ext import (
 )
 from config import BOT_TOKEN, CHANNEL_ID
 
+# Настройка логирования
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
+
 # Проверка подписки на канал
 async def check_subscription(user_id, context):
     try:
         # Проверяем статус пользователя в канале
         chat_member = await context.bot.get_chat_member(CHANNEL_ID, user_id)
-        return chat_member.status in ["member", "administrator", "creator"]
+        is_subscribed = chat_member.status in ["member", "administrator", "creator"]
+        logger.info(f"Пользователь {user_id} подписан на канал: {is_subscribed}")
+        return is_subscribed
     except Exception as e:
-        # Логируем ошибку, если возникла проблема
         logger.error(f"Ошибка при проверке подписки: {e}")
         return False
 
 # Команда /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
+    logger.info(f"Пользователь {user_id} отправил команду /start")
+
     if not await check_subscription(user_id, context):
         # Если пользователь не подписан, отправляем кнопку для подписки
         keyboard = [[InlineKeyboardButton("Подписаться", url=f"https://t.me/{CHANNEL_ID[1:]}")]]
@@ -142,13 +152,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == "create_another":
         # Если пользователь хочет создать ещё один скин
         await query.message.reply_text("Отлично! Отправьте мне ваш скин в формате .png.")
-
-# Настройка логирования
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-)
-logger = logging.getLogger(__name__)
 
 # Основная функция
 if __name__ == "__main__":
