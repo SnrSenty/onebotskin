@@ -173,7 +173,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 # Основная функция
-if __name__ == "__main__":
+async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Удаление существующего вебхука
@@ -182,7 +182,7 @@ if __name__ == "__main__":
         logger.info("Старый вебхук успешно удалён.")
 
     # Выполнение асинхронного кода перед запуском бота
-    asyncio.run(delete_webhook())
+    await delete_webhook()
 
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
@@ -190,4 +190,9 @@ if __name__ == "__main__":
     app.add_handler(CallbackQueryHandler(handle_callback))
 
     # Запуск бота
-    app.run_polling()
+    await app.start()
+    logger.info("Бот успешно запущен.")
+    await app.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())
