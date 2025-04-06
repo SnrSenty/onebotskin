@@ -176,8 +176,12 @@ if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Удаление существующего вебхука
-    app.bot.delete_webhook()
-    logger.info("Старый вебхук успешно удалён.")
+    async def delete_webhook():
+        await app.bot.delete_webhook()
+        logger.info("Старый вебхук успешно удалён.")
+
+    # Вызов асинхронного удаления вебхука
+    app.run_async(delete_webhook())
 
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
