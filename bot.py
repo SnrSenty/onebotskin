@@ -175,6 +175,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
+    # Удаление существующего вебхука
+    app.bot.delete_webhook()
+    logger.info("Старый вебхук успешно удалён.")
+
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.PHOTO, handle_image))
