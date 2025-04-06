@@ -3,6 +3,7 @@ import uuid
 import json
 import zipfile
 import logging
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -180,8 +181,8 @@ def main():
         await app.bot.delete_webhook()
         logger.info("Старый вебхук успешно удалён.")
 
-    # Выполнение асинхронного кода перед запуском бота
-    app.run_async(delete_webhook())
+    # Запуск асинхронной задачи для удаления вебхука
+    asyncio.create_task(delete_webhook())
 
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
