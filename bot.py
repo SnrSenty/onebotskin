@@ -59,7 +59,6 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Вы не подписаны на канал. Подпишитесь, чтобы продолжить.")
         return
 
-    # Получение файла
     file = None
     if update.message.photo:
         file = await update.message.photo[-1].get_file()
@@ -76,17 +75,14 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Ошибка! Поддерживается только формат .png.")
         return
 
-    # Создание временной папки для пользователя
     user_folder = f"lskinbot_{user_id}"
     os.makedirs(user_folder, exist_ok=True)
 
     try:
-        # Сохранение изображения
         skin_path = os.path.join(user_folder, "zombie.png")
         await file.download_to_drive(custom_path=skin_path)
         logger.info(f"Файл успешно сохранён: {skin_path}")
 
-        # Генерация manifest.json
         manifest_data = {
             "format_version": 2,
             "header": {
@@ -111,7 +107,6 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
             json.dump(manifest_data, f, indent=4)
         logger.info(f"Файл manifest.json создан: {manifest_path}")
 
-        # Генерация skins.json
         skins_data = {
             "skins": [
                 {
@@ -134,7 +129,6 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
             json.dump(skins_data, f, indent=4)
         logger.info(f"Файл skins.json создан: {skins_path}")
 
-        # Архивация в .zip
         zip_path = os.path.join(user_folder, "lskinbot.zip")
         with zipfile.ZipFile(zip_path, "w") as zipf:
             zipf.write(manifest_path, arcname="manifest.json")
@@ -142,12 +136,10 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
             zipf.write(skin_path, arcname="zombie.png")
         logger.info(f"Архив .zip создан: {zip_path}")
 
-        # Переименование в .mcpack
         mcpack_path = os.path.join(user_folder, "lskinbot.mcpack")
         os.rename(zip_path, mcpack_path)
         logger.info(f"Архив переименован в .mcpack: {mcpack_path}")
 
-        # Отправка файла пользователю
         with open(mcpack_path, "rb") as f:
             await update.message.reply_document(
                 document=f,
@@ -159,7 +151,6 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.info(f"Файл .mcpack отправлен пользователю: {user_id}")
 
     finally:
-        # Очистка временных файлов
         for root, dirs, files in os.walk(user_folder):
             for file in files:
                 os.remove(os.path.join(root, file))
@@ -177,6 +168,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Основная функция
 async def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
+
+    # Инициализация приложения
+    await app.initialize()
 
     # Регистрация обработчиков
     app.add_handler(CommandHandler("start", start))
