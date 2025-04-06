@@ -49,7 +49,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     else:
         # Если пользователь подписан, предлагаем отправить скин
-        await update.message.reply_text("Отлично! Отправьте мне ваш скин в формате .png.")
+        await update.message.reply_text(
+            "Вы уже подписаны! Отлично, значит просто отправьте мне Ваш скин в формате .png."
+        )
 
 # Обработка сообщений с изображениями
 async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -66,7 +68,7 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     logger.info(f"Получен файл с расширением: {file_extension}")
     if file_extension != ".png":
-        # Если файл не в формате .png, отправляем сообщение об ошибке
+        logger.info(f"Отклонён файл с недопустимым форматом: {file_extension}")
         await update.message.reply_text(
             "Ошибка! Данный формат мною не поддерживается. Пожалуйста, отправьте скин в формате .png."
         )
@@ -80,6 +82,7 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
     skin_path = os.path.join(user_folder, "zombie.png")
     logger.info(f"Сохранение файла: {skin_path}")
     await file.download_to_drive(custom_path=skin_path)
+    logger.info(f"Файл успешно сохранён: {skin_path}")
 
     # Генерация manifest.json
     manifest_data = {
@@ -164,7 +167,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "create_another":
         # Если пользователь хочет создать ещё один скин
-        await query.message.reply_text("Отлично! Отправьте мне ваш скин в формате .png.")
+        await query.message.reply_text(
+            "Отлично! Отправьте мне Ваш скин в формате .png."
+        )
 
 # Основная функция
 if __name__ == "__main__":
