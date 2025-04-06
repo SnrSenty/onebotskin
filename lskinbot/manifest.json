@@ -1,0 +1,19 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "Create/Создано: @LSkinZombieBot",
+        "description": "By Sent:y",
+        "uuid": "02af0ba7-ae1a-48b5-a691-e0b5d53018e9",
+        "version": [1, 0, 0]
+    },
+    "modules": [
+        {
+            "type": "skin_pack",
+            "uuid": "1c99569e-c2df-4334-9b0d-870d11212f9c",
+            "version": [1, 0, 0]
+        }
+    ],
+    "metadata": {
+        "authors": ["Senty"]
+    }
+}
