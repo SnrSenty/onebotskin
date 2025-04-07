@@ -189,11 +189,14 @@ async def main():
 if __name__ == "__main__":
     import asyncio
 
-    # Получаем текущий цикл событий
-    loop = asyncio.get_event_loop()
-
+    # Убедитесь, что используется правильный способ запуска асинхронного кода
     try:
-        # Запускаем основную функцию main()
-        loop.run_until_complete(main())
-    except KeyboardInterrupt:
-        logger.info("Бот остановлен пользователем.")
+        asyncio.run(main())
+    except RuntimeError as e:
+        if "There is no current event loop" in str(e):
+            # Если цикл событий уже запущен (например, на Railway), используем текущий цикл
+            import nest_asyncio
+            nest_asyncio.apply()
+            asyncio.run(main())
+        else:
+            raise e
