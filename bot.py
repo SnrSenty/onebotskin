@@ -191,12 +191,9 @@ if __name__ == "__main__":
 
     # Убедитесь, что используется правильный способ запуска асинхронного кода
     try:
+        # Если цикл событий уже запущен (например, на Railway), используем текущий цикл
+        import nest_asyncio
+        nest_asyncio.apply()
         asyncio.run(main())
-    except RuntimeError as e:
-        if "There is no current event loop" in str(e):
-            # Если цикл событий уже запущен (например, на Railway), используем текущий цикл
-            import nest_asyncio
-            nest_asyncio.apply()
-            asyncio.run(main())
-        else:
-            raise e
+    except Exception as e:
+        logger.error(f"Произошла ошибка: {e}")
