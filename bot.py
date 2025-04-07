@@ -179,8 +179,7 @@ async def main():
 
     # Запуск бота
     logger.info("Бот успешно запущен.")
-    await app.start()
-    await app.updater.start_polling()
+    await app.run_polling()  # Автоматически управляет циклом событий
 
 if __name__ == "__main__":
     import asyncio
