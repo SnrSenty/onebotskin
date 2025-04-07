@@ -179,8 +179,16 @@ async def main():
 
     # Запуск бота
     logger.info("Бот успешно запущен.")
-    await app.run_polling()  # Автоматически управляет циклом событий
+    try:
+        await app.run_polling()  # Автоматически управляет циклом событий
+    finally:
+        logger.info("Завершение работы бота...")
+        await app.shutdown()
 
+# Запуск бота
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Бот остановлен пользователем.")
