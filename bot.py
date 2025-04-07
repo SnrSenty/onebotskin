@@ -188,7 +188,12 @@ async def main():
 # Запуск бота
 if __name__ == "__main__":
     import asyncio
+
+    # Получаем текущий цикл событий
+    loop = asyncio.get_event_loop()
+
     try:
-        asyncio.run(main())
+        # Запускаем основную функцию main()
+        loop.run_until_complete(main())
     except KeyboardInterrupt:
         logger.info("Бот остановлен пользователем.")
