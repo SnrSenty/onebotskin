@@ -191,9 +191,18 @@ if __name__ == "__main__":
 
     # Убедитесь, что используется правильный способ запуска асинхронного кода
     try:
-        # Если цикл событий уже запущен (например, на Railway), используем текущий цикл
+        # Попытка импортировать nest_asyncio
         import nest_asyncio
         nest_asyncio.apply()
+    except ImportError:
+        logger.error("Модуль nest_asyncio не найден. Попытка установки...")
+        import subprocess
+        import sys
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "nest_asyncio"])
+        import nest_asyncio
+        nest_asyncio.apply()
+
+    try:
         asyncio.run(main())
     except Exception as e:
         logger.error(f"Произошла ошибка: {e}")
