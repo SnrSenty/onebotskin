@@ -3,6 +3,7 @@ import uuid
 import json
 import zipfile
 import logging
+from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder,
@@ -21,6 +22,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Словарь для отслеживания запросов пользователей
+user_requests = {}
+
 # Проверка подписки на канал
 async def check_subscription(user_id, context):
     try:
@@ -31,6 +35,23 @@ async def check_subscription(user_id, context):
     except Exception as e:
         logger.error(f"Ошибка при проверке подписки: {e}")
         return False
+
+# Функция для проверки лимита запросов
+def check_request_limit(user_id):
+    now = datetime.now()
+    if user_id not in user_requests:
+        user_requests[user_id] = []
+
+    # Очищаем старые запросы (старше 12 часов)
+    user_requests[user_id] = [
+        timestamp for timestamp in user_requests[user_id]
+        if now - timestamp < timedelta(hours=12)
+    ]
+
+    # Проверяем количество запросов
+    if len(user_requests[user_id]) >= 3:
+        return False  # Лимит превышен
+    return True  # Лимит не превышен
 
 # Команда /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -57,6 +78,13 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not await check_subscription(user_id, context):
         await update.message.reply_text("Вы не подписаны на канал. Подпишитесь, чтобы продолжить.")
+        return
+
+    # Проверка лимита запросов
+    if not check_request_limit(user_id):
+        await update.message.reply_text(
+            "Вы достигли лимита. Вы можете продолжить через 12 часов."
+        )
         return
 
     file = None
@@ -150,6 +178,11 @@ async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         logger.info(f"Файл .mcpack отправлен пользователю: {user_id}")
 
+        # Добавляем запрос пользователя в словарь
+        if user_id not in user_requests:
+            user_requests[user_id] = []
+        user_requests[user_id].append(datetime.now())
+
     finally:
         for root, dirs, files in os.walk(user_folder):
             for file in files:
@@ -163,6 +196,15 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     if query.data == "create_another":
+        user_id = query.from_user.id
+
+        # Проверка лимита запросов
+        if not check_request_limit(user_id):
+            await query.message.reply_text(
+                "Вы достигли лимита. Вы можете продолжить через 12 часов."
+            )
+            return
+
         await query.message.reply_text("Отлично! Отправьте мне Ваш скин в формате .png.")
 
 # Основная функция
